@@ -6,7 +6,7 @@
 #  \__/\__/\_, /\___/_//_/\_,_/_/         It is licensed under European Union Public License v. 1.2
 #         /___/                           Please report bugs and contribute back your improvements
 #
-#                                         Version: v1.6.3
+#                                         Version: v2.0.3
 #######  Description  #############
 #
 #  utility to include the content of install.doc.sh into given files (e.g. into other scripts or github workflow files
@@ -40,7 +40,7 @@
 set -euo pipefail
 shopt -s inherit_errexit || { echo >&2 "please update to bash 5, see errors above" && exit 1; }
 unset CDPATH
-export GT_VERSION='v1.6.3'
+export GT_VERSION='v2.0.3'
 
 if ! [[ -v dir_of_gt ]]; then
 	dir_of_gt="$(cd -- "$(dirname -- "${BASH_SOURCE[0]:-$0}")" >/dev/null && pwd 2>/dev/null)/.."
@@ -49,7 +49,7 @@ fi
 
 if ! [[ -v dir_of_tegonal_scripts ]]; then
 	dir_of_tegonal_scripts="$dir_of_gt/../lib/tegonal-scripts/src"
-	source "$dir_of_tegonal_scripts/setup.sh" "$dir_of_tegonal_scripts"
+	source "$dir_of_tegonal_scripts/setup_tegonal_scripts.sh" "$dir_of_tegonal_scripts"
 fi
 
 sourceOnce "$dir_of_tegonal_scripts/utility/parse-args.sh"
@@ -96,7 +96,7 @@ function includeInstallDoc() {
 		# shellcheck disable=SC2001	# cannot use search/replace variable substitution here
 		content=$(sed "s/^/$indent/g" <<<"$installScript") || return $?
 		perl -0777 -i \
-			-pe "s@(\n\s+# see install.doc.sh.*\n)[^#]+(# end install.doc.sh\n)@\${1}$content\n$indent\${2}@g" \
+			-pe "s@(\n\s*# see install.doc.sh.*\n)[^#]+(# end install.doc.sh\n)@\${1}$content\n$indent\${2}@g" \
 			"$file" || return $?
 	done || traceAndDie "could not replace the install instructions"
 }
